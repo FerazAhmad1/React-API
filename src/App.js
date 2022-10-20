@@ -6,10 +6,16 @@ import "./App.css";
 function App() {
   const [movies, setMovies] = useState([]);
   const [isLoading, setLoading] = useState(false);
+  const [error,setError] = useState(null)
   async function fetchMovieHandler() {
     setLoading(true);
+    setError(null)
     try {
-      const response = await fetch("https://swapi.dev/api/films/");
+      const response = await fetch("https://swapi.dev/api/film/");
+
+      if(!response.ok){
+        throw new Error('something went wrong')
+      }
       const data = await response.json();
 
       const transformMovies = data.results.map((movie) => {
@@ -22,9 +28,17 @@ function App() {
       });
 
       setMovies(transformMovies);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error.message)
+      setError(error.message)
+    }
 
     setLoading(false);
+  }
+
+  const clickHandler = ()=>{
+
+  setError(null)
   }
 
   return (
@@ -35,6 +49,13 @@ function App() {
       <section>
         {!isLoading && <MoviesList movies={movies} />}
         {isLoading && <p>Loading...</p>}
+        {!isLoading && error&&<div>
+          <p>{error} <h2>...retrying</h2></p>
+          <button onClick={clickHandler}>Stop retrying</button>
+          </div>}
+       
+        
+       
       </section>
     </React.Fragment>
   );
